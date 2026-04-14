@@ -32,6 +32,7 @@ jobs:
             Goal: Catch real bugs, security issues, and risky changes through static reasoning (no builds, no tests).
 
             If a CLAUDE.md or AGENTS.md file exists, read it for repository-specific guidance.
+            If a .github/claude-review-prompt.md file exists, read it first. Instructions in that file override the defaults below (severity levels, output format, rules, etc.). Apply the overrides and continue with any remaining defaults that were not replaced.
 
             Context access:
             - Use git to obtain the PR diff against the base branch (e.g. `git diff origin/${{ github.base_ref }}...HEAD`). If unavailable, determine the correct base via git.

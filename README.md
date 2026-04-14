@@ -76,6 +76,31 @@ Then in any project use the Claude Code slash commands:
 
 By default the commands auto-detect `main` or `master` as the base branch. Pass a specific base when that default is wrong - for example when reviewing against a `develop` branch, a release branch, or another feature branch in a stacked PR workflow.
 
+## Customising the review prompt
+
+To override the default review behaviour, add a `.github/claude-review-prompt.md` file to your repo. Instructions in this file take precedence over the built-in defaults - you only need to specify what you want to change.
+
+```sh
+mkdir -p .github
+touch .github/claude-review-prompt.md
+```
+
+Example `.github/claude-review-prompt.md`:
+
+```markdown
+## Additional rules
+
+- All database migrations must include a rollback step.
+- Flag any use of `eval()` as CRITICAL.
+- Ignore changes to generated files in `src/generated/`.
+
+## Severity overrides
+
+- LOW severity is also acceptable for this repo - report style issues in test files.
+```
+
+This works for both CI and local commands. The reviewer reads your overrides first, applies them, and falls back to the built-in defaults for anything you didn't override.
+
 ## How it works
 
 The reviewer looks at the diff between your branch and the base, reads surrounding code to verify assumptions, and reports issues at MEDIUM severity or above. It won't flag style nits, naming opinions, or design preferences - only things worth changing.
