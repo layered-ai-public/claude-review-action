@@ -34,6 +34,13 @@ on:
         description: PR number to review
         required: true
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: read
+  id-token: write
+  actions: read
+
 jobs:
   review:
     uses: layered-ai-public/claude-review-action/.github/workflows/claude-review.yml@main
