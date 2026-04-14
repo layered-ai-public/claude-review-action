@@ -21,8 +21,8 @@ echo "Installing claude-review-action commands..."
 TREE="$TMP/tree.json"
 curl -fsSL "$API" -o "$TREE"
 
-# Extract command file paths from the tree (blobs only, matching our commands directory)
-grep '"blob"' "$TREE" | grep "\"$COMMANDS_PATH/" > "$TMP/files.txt"
+# Extract command file paths from the tree (matching our commands directory)
+grep "\"path\": \"$COMMANDS_PATH/" "$TREE" > "$TMP/files.txt" || true
 
 # Download each file into the temp directory.
 # Uses file redirection (not a pipe) so the loop runs in the current shell,
