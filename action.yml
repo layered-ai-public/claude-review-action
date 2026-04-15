@@ -1,5 +1,5 @@
-name: Claude Review
-description: AI-powered code review with Claude. Reviews pull request diffs for bugs, security issues, and risky changes - only flags issues worth fixing.
+name: Claude Review Action
+description: AI-powered code review with Claude. Flags bugs, security issues, and risky changes in PR diffs.
 author: layered.ai
 
 branding:
