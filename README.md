@@ -1,29 +1,47 @@
-# claude-review-action
+# Claude Review
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Website](https://img.shields.io/badge/Website-layered.ai-purple)](https://www.layered.ai/)
 [![GitHub](https://img.shields.io/badge/GitHub-layered--ui--rails-black)](https://github.com/layered-ai-public/claude-review-action)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2)](https://discord.gg/aCGqz9Bx)
 
-Reusable GitHub Action for AI-powered code review with Claude. Reviews pull request diffs for bugs, security issues, and risky changes - only flags issues worth fixing.
+Pragmatic AI-powered code review with Claude. Reviews pull request diffs for bugs, security issues, and risky changes - only flags issues worth fixing.
 
 ## What's included
 
-- **Reusable GitHub workflow** - drop-in CI review for any repo
-- **Claude Code commands** - local equivalents you can run before pushing
+- **GitHub Action** - drop-in CI review for any repo, one workflow file and one secret
+- **Claude Code commands** - review locally in Claude Code before you push to GitHub, with a fix mode that automatically resolves issues (or quits after 3 cycles)
+- **Prompt override** - customise the review prompt for any repo using `.github/claude-review/prompt.md`
+- **Cost effective** - uses the Anthropic API directly to keep token costs low
+
+## How it works
+
+The reviewer looks at the diff between your branch and the base, reads surrounding code to verify assumptions, and reports issues at MEDIUM severity or above. It won't flag style nits, naming opinions, or design preferences - only things worth changing.
+
+Severity levels:
+
+- **CRITICAL** - data loss, security vulnerability, silent corruption, or outage risk
+- **HIGH** - likely bug, race condition, or serious logic error
+- **MEDIUM** - meaningful code smell or unclear intent that risks future bugs
+
+If your repo has a `CLAUDE.md` or `AGENTS.md`, the reviewer will read it for project-specific guidance.
 
 ## CI setup
 
-### 1. Add the secret
+### 1. Install the Claude GitHub App
+
+Install [Claude for GitHub](https://github.com/apps/claude) on your repository or organisation.
+
+### 2. Add the secret
 
 Add `ANTHROPIC_API_KEY` as a repository or organisation secret.
 
-### 2. Create the caller workflow
+### 3. Create the caller workflow
 
 Add `.github/workflows/claude_code_review.yml` to your repo:
 
 ```yaml
-name: Claude Code review
+name: Claude Review
 
 on:
   pull_request:
@@ -50,7 +68,7 @@ jobs:
       anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
 ```
 
-That's it. Pull requests will now get a review comment from Claude.
+That's it. Pull requests will now get a review comment from Claude when openend and on each push.
 
 ## Local setup (Claude Code commands)
 
@@ -78,14 +96,14 @@ By default the commands auto-detect `main` or `master` as the base branch. Pass 
 
 ## Customising the review prompt
 
-To override the default review behaviour, add a `.github/claude-review-prompt.md` file to your repo. Instructions in this file take precedence over the built-in defaults - you only need to specify what you want to change.
+To override the default review behaviour, add a `.github/claude-review/prompt.md` file to your repo. Instructions in this file take precedence over the built-in defaults - you only need to specify what you want to change.
 
 ```sh
-mkdir -p .github
-touch .github/claude-review-prompt.md
+mkdir -p .github/claude-review
+touch .github/claude-review/prompt.md
 ```
 
-Example `.github/claude-review-prompt.md`:
+Example `.github/claude-review/prompt.md`:
 
 ```markdown
 ## Additional rules
@@ -101,20 +119,10 @@ Example `.github/claude-review-prompt.md`:
 
 This works for both CI and local commands. The reviewer reads your overrides first, applies them, and falls back to the built-in defaults for anything you didn't override.
 
-## How it works
-
-The reviewer looks at the diff between your branch and the base, reads surrounding code to verify assumptions, and reports issues at MEDIUM severity or above. It won't flag style nits, naming opinions, or design preferences - only things worth changing.
-
-Severity levels:
-
-- **CRITICAL** - data loss, security vulnerability, silent corruption, or outage risk
-- **HIGH** - likely bug, race condition, or serious logic error
-- **MEDIUM** - meaningful code smell or unclear intent that risks future bugs
-
-If your repo has a `CLAUDE.md` or `AGENTS.md`, the reviewer will read it for project-specific guidance.
-
 ## License
 
 Released under the [Apache 2.0 License](LICENSE).
 
 Copyright 2026 LAYERED AI LIMITED (UK company number: 17056830). See [NOTICE](NOTICE) for attribution details.
+
+"Claude" and "Anthropic" are trademarks of Anthropic, PBC. This project is not affiliated with or endorsed by Anthropic.
