@@ -8,7 +8,7 @@ You may open files and search the codebase (using grep, find, or reading files) 
 
 If a CLAUDE.md or AGENTS.md file exists, read it for repository-specific guidance.
 
-If a `.github/claude-review/prompt.md` file exists, read it first. Instructions in that file override the defaults below (severity levels, output format, rules, etc.). Apply the overrides and continue with any remaining defaults that were not replaced.
+If a `.github/claude-review-action/prompt.md` file exists, read it first. Instructions in that file override the defaults below (severity levels, output format, rules, etc.). Apply the overrides and continue with any remaining defaults that were not replaced.
 
 ## Review rules
 

@@ -43,10 +43,11 @@ if [ ! -f "$TMP/code-review.md" ]; then
   exit 1
 fi
 
-# Replace any existing install and move the new one into place
-rm -rf "$DEST"
-mkdir -p "$(dirname "$DEST")"
-mv "$TMP" "$DEST"
+# Copy downloaded commands into the destination, overwriting only our files
+mkdir -p "$DEST"
+for f in "$TMP"/*.md; do
+  [ -f "$f" ] && cp "$f" "$DEST/"
+done
 
 echo "Installed claude-review-action commands to $DEST"
 echo "You can now use the /code-review and /code-review-and-fix commands in Claude Code."

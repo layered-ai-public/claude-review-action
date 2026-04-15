@@ -2,7 +2,7 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Website](https://img.shields.io/badge/Website-layered.ai-purple)](https://www.layered.ai/)
-[![GitHub](https://img.shields.io/badge/GitHub-layered--ui--rails-black)](https://github.com/layered-ai-public/claude-review-action)
+[![GitHub](https://img.shields.io/badge/GitHub-claude--review--action-black)](https://github.com/layered-ai-public/claude-review-action)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2)](https://discord.gg/aCGqz9Bx)
 
 Pragmatic AI-powered code review with Claude. Reviews pull request diffs for bugs, security issues, and risky changes - only flags issues worth fixing.
@@ -11,7 +11,7 @@ Pragmatic AI-powered code review with Claude. Reviews pull request diffs for bug
 
 - **GitHub Action** - drop-in CI review for any repo, one workflow file and one secret
 - **Claude Code commands** - review locally in Claude Code before you push to GitHub, with a fix mode that automatically resolves issues (or quits after 3 cycles)
-- **Prompt override** - customise the review prompt for any repo using `.github/claude-review/prompt.md`
+- **Prompt override** - customise the review prompt for any repo using `.github/claude-review-action/prompt.md`
 - **Cost effective** - uses the Anthropic API directly to keep token costs low
 
 ## How it works
@@ -96,14 +96,14 @@ By default the commands auto-detect `main` or `master` as the base branch. Pass 
 
 ## Customising the review prompt
 
-To override the default review behaviour, add a `.github/claude-review/prompt.md` file to your repo. Instructions in this file take precedence over the built-in defaults - you only need to specify what you want to change.
+To override the default review behaviour, add a `.github/claude-review-action/prompt.md` file to your repo. Instructions in this file take precedence over the built-in defaults - you only need to specify what you want to change.
 
 ```sh
-mkdir -p .github/claude-review
-touch .github/claude-review/prompt.md
+mkdir -p .github/claude-review-action
+touch .github/claude-review-action/prompt.md
 ```
 
-Example `.github/claude-review/prompt.md`:
+Example `.github/claude-review-action/prompt.md`:
 
 ```markdown
 ## Additional rules

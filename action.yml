@@ -34,7 +34,7 @@ runs:
           Task: Review the pull request #${{ github.event.pull_request.number || inputs.pr_number }}
           Goal: Catch real bugs, security issues, and risky changes through static reasoning (no builds, no tests).
 
-          If a .github/claude-review/prompt.md file exists, read it first - its instructions take precedence over the defaults below.
+          If a .github/claude-review-action/prompt.md file exists, read it first - its instructions take precedence over the defaults below.
           If a CLAUDE.md or AGENTS.md file exists, also read it for repository-specific guidance.
 
           Context access:
