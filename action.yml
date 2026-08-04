@@ -22,6 +22,7 @@ runs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        ref: ${{ github.event.pull_request.head.sha || format('refs/pull/{0}/head', inputs.pr_number) }}
 
     - name: Review pull request
       uses: anthropics/claude-code-action@v1.0.88
@@ -38,7 +39,7 @@ runs:
           If a CLAUDE.md or AGENTS.md file exists, also read it for repository-specific guidance.
 
           Context access:
-          - Obtain the PR diff with `git diff origin/${{ github.base_ref }}...HEAD` against the locally checked-out tree. Do NOT use `gh pr diff` - it queries the GitHub API and can return content from a different SHA than what is checked out, causing you to review a stale or mismatched version of the code.
+          - Obtain the PR diff with `git diff origin/${{ github.event.pull_request.base.ref || github.event.repository.default_branch }}...HEAD` against the locally checked-out tree. Do NOT use `gh pr diff` - it queries the GitHub API and can return content from a different SHA than what is checked out, causing you to review a stale or mismatched version of the code.
           - If the base ref above is unavailable, determine the correct base via git (e.g. `git log`, `git merge-base`) - still using local git, not the GitHub API.
           - Base your review primarily on this diff.
           - You may open files and search the codebase to understand context and verify assumptions about changed lines. Always read files from the local checkout, never via `gh` commands that fetch remote content.
