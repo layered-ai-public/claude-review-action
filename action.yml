@@ -25,7 +25,7 @@ runs:
         ref: ${{ github.event.pull_request.head.sha || format('refs/pull/{0}/head', inputs.pr_number) }}
 
     - name: Review pull request
-      uses: anthropics/claude-code-action@v1.0.88
+      uses: anthropics/claude-code-action
       env:
         GH_TOKEN: ${{ github.token }}
       with:
