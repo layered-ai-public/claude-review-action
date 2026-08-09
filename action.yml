@@ -84,10 +84,6 @@ runs:
         claude_args: |
           --allowedTools "Read,Bash(gh pr view:*),Bash(gh pr comment:*),Bash(git diff:*),Bash(git log:*),Bash(git merge-base:*),Bash(git show:*),Bash(grep:*),Bash(find:*)"
 
-    # The review step reports success even when Claude was blocked from
-    # calling `gh pr comment` (e.g. a malformed --allowedTools list), so a
-    # completed run tells us nothing about whether the review reached the PR.
-    # Fail loudly instead of leaving a silently reviewless PR.
     - name: Verify the review was posted
       shell: bash
       env:
