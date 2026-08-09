@@ -77,4 +77,4 @@ runs:
              - Omit this section entirely if there are no issues.
           3. **Verdict** - One of: ✅ **Ship** / 🟧 **Ship (with known minor issues)** / 🚫 **Changes required** - with a one-sentence justification.
         claude_args: |
-          --allowedTools Read,Bash(gh pr view:*),Bash(gh pr comment:*),Bash(git diff:*),Bash(git log:*),Bash(git merge-base:*),Bash(git show:*),Bash(grep:*),Bash(find:*)
+          --allowedTools "Read,Bash(gh pr view:*),Bash(gh pr comment:*),Bash(git diff:*),Bash(git log:*),Bash(git merge-base:*),Bash(git show:*),Bash(grep:*),Bash(find:*)"
