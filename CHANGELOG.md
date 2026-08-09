@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.1.1] - 2026-08-09
+
+### Fixed
+
+- Restore the required `@ref` on `anthropics/claude-code-action` (now `@v1`) — without it the runner failed to parse `action.yml` and every review run errored before starting
+
 ## [1.1.0] - 2026-08-09
 
 ### Changed
