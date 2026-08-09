@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.1.2] - 2026-08-09
+
+### Fixed
+
+- Quote the `--allowedTools` value — `claude_args` is parsed with `shell-quote`, so the unquoted list was split on the spaces inside patterns like `Bash(gh pr comment:*)`. None of the `gh` or `git` tools were actually allowlisted, so reviews were generated and then silently discarded when every attempt to post them was denied
+
+### Added
+
+- A verification step that fails the job when the review run completes without a comment landing on the PR, instead of reporting success on a reviewless PR
+
 ## [1.1.1] - 2026-08-09
 
 ### Fixed
