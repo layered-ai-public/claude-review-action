@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-08-09
+
+### Changed
+
+- Reviews now read the diff from the local checkout with `git diff` instead of `gh pr diff`, so the reviewed code always matches the checked-out SHA
+- The review step tracks the latest `anthropics/claude-code-action` instead of a pinned `v1.0.88`
+
+### Added
+
+- Concurrency group on the reusable workflow — a new push to a PR cancels any in-flight review run
+
+### Fixed
+
+- Checkout is pinned to the PR head SHA (falling back to `refs/pull/{n}/head`), so `pull_request` runs no longer land on the lagging merge ref and `workflow_dispatch` runs no longer review the default branch
+- Base ref resolution uses `pull_request.base.ref` with `repository.default_branch` as fallback, fixing the malformed `git diff origin/...HEAD` on `workflow_dispatch` runs
+
 ## [1.0.1] - 2026-04-15
 
 ### Fixed
