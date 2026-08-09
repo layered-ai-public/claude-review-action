@@ -24,6 +24,11 @@ runs:
         fetch-depth: 0
         ref: ${{ github.event.pull_request.head.sha || format('refs/pull/{0}/head', inputs.pr_number) }}
 
+    - name: Record review start time
+      id: review_start
+      shell: bash
+      run: echo "timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
     - name: Review pull request
       uses: anthropics/claude-code-action@v1
       env:
@@ -78,3 +83,25 @@ runs:
           3. **Verdict** - One of: ✅ **Ship** / 🟧 **Ship (with known minor issues)** / 🚫 **Changes required** - with a one-sentence justification.
         claude_args: |
           --allowedTools "Read,Bash(gh pr view:*),Bash(gh pr comment:*),Bash(git diff:*),Bash(git log:*),Bash(git merge-base:*),Bash(git show:*),Bash(grep:*),Bash(find:*)"
+
+    # The review step reports success even when Claude was blocked from
+    # calling `gh pr comment` (e.g. a malformed --allowedTools list), so a
+    # completed run tells us nothing about whether the review reached the PR.
+    # Fail loudly instead of leaving a silently reviewless PR.
+    - name: Verify the review was posted
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+        PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
+        SINCE: ${{ steps.review_start.outputs.timestamp }}
+      run: |
+        set -euo pipefail
+        posted=$(gh api \
+          "repos/${REPO}/issues/${PR_NUMBER}/comments?since=${SINCE}&per_page=100" \
+          --jq '[.[] | select(.user.type == "Bot")] | length')
+        if [ "$posted" -eq 0 ]; then
+          echo "::error::Claude completed the review but no comment was posted to PR #${PR_NUMBER}. Check the review step log for permission denials (permission_denials_count in the result JSON)."
+          exit 1
+        fi
+        echo "Review posted: ${posted} bot comment(s) on PR #${PR_NUMBER} since ${SINCE}."
