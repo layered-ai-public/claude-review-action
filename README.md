@@ -23,8 +23,10 @@ Every finding has to come with a concrete failure scenario - the input or state,
 Severity levels:
 
 - **CRITICAL** - a nameable input or state causes data loss, a security breach, silent corruption, or an outage, by a reachable path
-- **HIGH** - a nameable input or state produces incorrect behaviour
-- **MEDIUM** - no specific trigger, but the change makes a named future failure likely
+- **HIGH** - a nameable input or state produces behaviour that matters: wrong data, broken functionality, a failure a user would notice
+- **MEDIUM** - a nameable trigger with small impact (cosmetic, log-only), or no specific trigger but a named future failure the change makes likely
+
+Severity is trigger *and* impact, so an obvious trigger with trivial consequence stays MEDIUM. Only CRITICAL and HIGH block a PR.
 
 The reviewer often sees only one side of a boundary - a frontend consuming an API, a client of a library. It looks for the contract before flagging missing defensive handling, and states unverified assumptions separately rather than reporting them as findings.
 
