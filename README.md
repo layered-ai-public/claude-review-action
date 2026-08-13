@@ -84,6 +84,14 @@ Run the install script directly:
 curl -fsSL https://raw.githubusercontent.com/layered-ai-public/claude-review-action/main/install-commands.sh | sh
 ```
 
+From a local checkout, the same script installs the commands from that working tree instead — so you can test prompt changes on a branch before merging them:
+
+```sh
+./install-commands.sh
+```
+
+It reports which branch it installed, and warns when `commands/` has uncommitted changes. Detection is based on where the script itself lives, not the working directory, so piping from `curl` always installs from `main` no matter where you run it. Force either source with `--local` or `--remote`.
+
 Or copy manually:
 
 ```sh

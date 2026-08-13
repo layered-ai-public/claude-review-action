@@ -21,10 +21,19 @@ Read `expected.md` **after** the review, not before — in the same session it p
 reviewer and the run tells you nothing.
 
 Two things to be careful of. `/code-review` uses your **installed** command from
-`~/.claude/commands/`, not this working tree, so run `./install-commands.sh` first or
-you will be testing the old prompt. And to exercise the action rather than the slash
-command, push the fixture repo to a scratch remote and point a workflow at the branch —
-the slash command does not cover the diff step, `gh pr comment`, or the tool allowlist.
+`~/.claude/commands/`, not this working tree, so run `./install-commands.sh` from the
+checkout first — it installs the current branch's prompt and tells you which branch that
+was. And to exercise the action rather than the slash command, push the fixture repo to a
+scratch remote and point a workflow at the branch — the slash command does not cover the
+diff step, `gh pr comment`, or the tool allowlist.
+
+To review a fixture without touching your installed commands at all, pass the prompt
+straight to a headless run from inside the fixture repo:
+
+```bash
+claude -p "$(cat /path/to/claude-review-action/commands/code-review.md)" \
+  --allowedTools "Read,Grep,Glob,Bash(git diff:*),Bash(git log:*)"
+```
 
 ## The fixtures
 
