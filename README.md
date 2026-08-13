@@ -18,11 +18,15 @@ Pragmatic AI-powered code review with Claude. Reviews pull request diffs for bug
 
 The reviewer looks at the diff between your branch and the base, reads surrounding code to verify assumptions, and reports issues at MEDIUM severity or above. It won't flag style nits, naming opinions, or design preferences - only things worth changing.
 
+Every finding has to come with a concrete failure scenario - the input or state, then the wrong result. Findings that can't be pinned to one are dropped rather than reported at a lower severity, so subject matter alone (auth, payments, user data) doesn't inflate a finding to CRITICAL.
+
 Severity levels:
 
-- **CRITICAL** - data loss, security vulnerability, silent corruption, or outage risk
-- **HIGH** - likely bug, race condition, or serious logic error
-- **MEDIUM** - meaningful code smell or unclear intent that risks future bugs
+- **CRITICAL** - a nameable input or state causes data loss, a security breach, silent corruption, or an outage, by a reachable path
+- **HIGH** - a nameable input or state produces incorrect behaviour
+- **MEDIUM** - no specific trigger, but the change makes a named future failure likely
+
+The reviewer often sees only one side of a boundary - a frontend consuming an API, a client of a library. It looks for the contract before flagging missing defensive handling, and states unverified assumptions separately rather than reporting them as findings.
 
 If your repo has a `CLAUDE.md` or `AGENTS.md`, the reviewer will read it for project-specific guidance.
 

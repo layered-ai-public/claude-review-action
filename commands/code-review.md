@@ -22,22 +22,46 @@ Print the review directly. Do not post it as a PR comment or anywhere else.
 - Do not speculate about compatibility with versions, environments, or configurations that are not evidenced in the diff or codebase.
 - Do not flag design decisions (API defaults, naming conventions) unless they introduce a concrete bug or safety issue. "I would have done it differently" is not a finding.
 - Only flag hypothetical edge cases if they are reachable through normal use of the public API as shown in the diff. Do not invent exotic configurations to create a problem.
-- Provide a complete review in a single pass. Include all relevant issues to avoid requiring multiple review cycles.
+- Provide a complete review in a single pass, so the developer does not need a second review cycle. Completeness means every real issue, not every observation. A review with no issues is a successful review - say so plainly and stop. Padding a review with minor findings to look thorough wastes more developer time than a missed nit.
 
-## Severity threshold
+## Partial context is expected
 
-Only report issues at MEDIUM severity or above. Do NOT report style nits, minor readability preferences, naming opinions, or small improvements that do not affect correctness or safety.
+You will often see only one side of a boundary - a frontend consuming an API, a client of a library, a service calling another service. The contract on the other side is not in this diff.
 
-Before including any issue, ask yourself: "Would I block the PR or request a change for this?" If the answer is no, do not include it.
+Do not report missing defensive handling of a value the code treats as guaranteed (e.g. a `user` object the API always returns) unless the diff or codebase shows it can actually be absent. Look for the contract first; if you cannot find it, assume the author knows their own API.
 
-- **CRITICAL** - Data loss, security vulnerability, silent corruption, or outage risk.
-- **HIGH** - Likely bug, race condition, or serious logic error.
-- **MEDIUM** - Meaningful code smell, unclear intent that risks future bugs, or moderate maintainability concern with a concrete consequence.
+If a finding depends on an assumption you could not verify, say so in one line outside the Issues table - do not convert an unverified assumption into a finding.
+
+## Severity assignment
+
+Assign severity BEFORE deciding what to report.
+
+- **CRITICAL** - You can name the input or state that causes data loss, a security breach, silent corruption, or an outage, and the path to it is reachable from the code as changed.
+- **HIGH** - You can name the input or state that produces incorrect behaviour.
+- **MEDIUM** - No specific trigger, but the change makes a concrete future failure likely, and you can say what that failure is.
+- **LOW** - Everything else: style, naming, readability, preference, "I would have done it differently", theoretical concerns you cannot trigger.
+
+Every finding must carry a failure scenario: specific input or state, then the specific wrong result. If you cannot write one, the finding is LOW - regardless of how serious the subject matter sounds. Touching authentication, payments, or user data does not by itself make a finding CRITICAL; a demonstrated consequence does.
+
+Report CRITICAL, HIGH, and MEDIUM. Discard LOW entirely - do not mention it, do not list it as a note.
+
+## Self-check before output
+
+Before writing the review, re-examine each finding and try to disprove it:
+
+- Read the actual code around it. Does the problem survive contact with what is really there?
+- Is the trigger reachable through normal use of this code, or did you have to invent an unusual configuration?
+- Would a competent engineer reading this diff call it a real problem, or a matter of taste?
+
+If you cannot defend a finding after that, drop it. Prefer dropping a doubtful finding over reporting it with a caveat.
 
 ## Output format
 
 1. **Summary** - One or two sentences on what the PR does.
-2. **Issues** - A table with columns: Severity | File | Line(s) | Description. Each issue must reference a specific line or change in the diff. Omit this section entirely if there are no issues.
-3. **Verdict** - One of: ✅ **Ship** / 🟧 **Ship (with known minor issues)** / 🚫 **Needs changes** - with a one-sentence justification.
+2. **Issues** - A table with columns: Severity | File | Line(s) | Failure scenario | Description. Failure scenario must be concrete: the input or state, then the wrong result. Each issue must reference a specific line or change in the diff. Omit this section entirely if there are no issues.
+3. **Verdict** - with a one-sentence justification:
+   - ✅ **Ship** - no findings at all.
+   - 🟧 **Ship (medium findings to address)** - MEDIUM findings only, no CRITICAL or HIGH.
+   - 🚫 **Changes required** - one or more CRITICAL or HIGH findings.
 
 If no issues are found, keep the response concise and do not add filler commentary.

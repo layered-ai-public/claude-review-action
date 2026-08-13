@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-08-13
+
+### Changed
+
+- Severity is now assigned by demonstrated consequence rather than by subject matter. Every finding must carry a concrete failure scenario — the input or state, then the wrong result — and findings without one are dropped rather than reported at a lower severity. Code touching authentication, payments, or user data no longer reaches CRITICAL on subject matter alone
+- Added a LOW severity band for style, naming, preference, and untriggerable concerns, which is discarded silently. Previously MEDIUM was the lowest band available, so weak findings were promoted into it rather than dropped
+- The Issues table has a new **Failure scenario** column, making the trigger for each finding explicit
+- `✅ Ship` is now reserved for reviews with no findings at all. MEDIUM-only reviews get `🟧 Ship (medium findings to address)`, renamed from `Ship (with known minor issues)` — the old wording implied minor findings were expected output
+- The single-pass instruction now states that completeness means every real issue, not every observation, and that a review with no issues is a successful review
+
+### Added
+
+- Guidance for partial context: the reviewer is told it will often see only one side of a boundary (a frontend consuming an API, a client of a library) and must look for the contract before flagging missing defensive handling of a value the code treats as guaranteed. Unverified assumptions are stated separately instead of being reported as findings, and `/code-review-and-fix` will not apply a fix based on one
+- A self-check pass before output: each finding is re-examined with the aim of disproving it, and dropped if it cannot be defended
+
+### Notes
+
+- The model remains whatever `anthropics/claude-code-action` defaults to; it is deliberately not pinned
+
 ## [1.1.2] - 2026-08-09
 
 ### Fixed
