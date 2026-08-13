@@ -18,11 +18,17 @@ Pragmatic AI-powered code review with Claude. Reviews pull request diffs for bug
 
 The reviewer looks at the diff between your branch and the base, reads surrounding code to verify assumptions, and reports issues at MEDIUM severity or above. It won't flag style nits, naming opinions, or design preferences - only things worth changing.
 
+Every finding has to come with a concrete failure scenario - the input or state, then the wrong result. Findings that can't be pinned to one are dropped rather than reported at a lower severity, so subject matter alone (auth, payments, user data) doesn't inflate a finding to CRITICAL.
+
 Severity levels:
 
-- **CRITICAL** - data loss, security vulnerability, silent corruption, or outage risk
-- **HIGH** - likely bug, race condition, or serious logic error
-- **MEDIUM** - meaningful code smell or unclear intent that risks future bugs
+- **CRITICAL** - a nameable input or state causes data loss, a security breach, silent corruption, or an outage, by a reachable path
+- **HIGH** - a nameable input or state produces behaviour that matters: wrong data, broken functionality, a failure a user would notice
+- **MEDIUM** - a nameable trigger with small impact (cosmetic, log-only), or no specific trigger but a named future failure the change makes likely
+
+Severity is trigger *and* impact, so an obvious trigger with trivial consequence stays MEDIUM. Only CRITICAL and HIGH block a PR.
+
+The reviewer often sees only one side of a boundary - a frontend consuming an API, a client of a library. It looks for the contract before flagging missing defensive handling, and states unverified assumptions separately rather than reporting them as findings.
 
 If your repo has a `CLAUDE.md` or `AGENTS.md`, the reviewer will read it for project-specific guidance.
 
@@ -78,6 +84,14 @@ Run the install script directly:
 curl -fsSL https://raw.githubusercontent.com/layered-ai-public/claude-review-action/main/install-commands.sh | sh
 ```
 
+From a local checkout, the same script installs the commands from that working tree instead — so you can test prompt changes on a branch before merging them:
+
+```sh
+./install-commands.sh
+```
+
+It reports which branch it installed, and warns when `commands/` has uncommitted changes. Detection is based on where the script itself lives, not the working directory, so piping from `curl` always installs from `main` no matter where you run it. Force either source with `--local` or `--remote`.
+
 Or copy manually:
 
 ```sh
@@ -118,6 +132,16 @@ Example `.github/claude-review-action/prompt.md`:
 ```
 
 This works for both CI and local commands. The reviewer reads your overrides first, applies them, and falls back to the built-in defaults for anything you didn't override.
+
+## Testing prompt changes
+
+`fixtures/` holds known diffs with agreed expected outcomes — three that should produce no findings, three that should produce a specific severity. Build a throwaway repo for any of them and run the review against it:
+
+```bash
+./fixtures/run.sh trivial-log-label
+```
+
+See [fixtures/README.md](fixtures/README.md) for the full set and what each one guards against. Worth running before and after any change to the severity bands.
 
 ## License
 
