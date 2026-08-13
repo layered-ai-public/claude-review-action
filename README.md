@@ -125,6 +125,16 @@ Example `.github/claude-review-action/prompt.md`:
 
 This works for both CI and local commands. The reviewer reads your overrides first, applies them, and falls back to the built-in defaults for anything you didn't override.
 
+## Testing prompt changes
+
+`fixtures/` holds known diffs with agreed expected outcomes — three that should produce no findings, three that should produce a specific severity. Build a throwaway repo for any of them and run the review against it:
+
+```bash
+./fixtures/run.sh trivial-log-label
+```
+
+See [fixtures/README.md](fixtures/README.md) for the full set and what each one guards against. Worth running before and after any change to the severity bands.
+
 ## License
 
 Released under the [Apache 2.0 License](LICENSE).

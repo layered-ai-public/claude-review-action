@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file. This projec
 
 - Guidance for partial context: the reviewer is told it will often see only one side of a boundary (a frontend consuming an API, a client of a library) and must look for the contract before flagging missing defensive handling of a value the code treats as guaranteed. Unverified assumptions go in a dedicated **Assumptions** line rather than becoming findings, and `/code-review-and-fix` will not apply a fix based on one
 - A self-check pass before output: each finding is re-examined with the aim of disproving it, and dropped if it cannot be defended
+- A `fixtures/` set of six known diffs with expected outcomes, and `fixtures/run.sh` to build a throwaway repo for any one of them. Three expect no findings (clean refactor, style-only churn, an unseen API contract) and three expect a specific severity (MEDIUM for a trivial log slip, HIGH for an off-by-one, CRITICAL for a reachable SQL injection), so a rubric change can be checked for both over- and under-reporting
 
 ### Notes
 
