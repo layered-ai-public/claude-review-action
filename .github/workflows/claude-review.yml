@@ -7,6 +7,11 @@ on:
         description: PR number to review (only needed for workflow_dispatch callers)
         required: false
         type: string
+      model:
+        description: Claude model to use for the review
+        required: false
+        type: string
+        default: claude-sonnet-5
     secrets:
       anthropic_api_key:
         required: true
@@ -24,3 +29,4 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.anthropic_api_key }}
           pr_number: ${{ inputs.pr_number }}
+          model: ${{ inputs.model }}

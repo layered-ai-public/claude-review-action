@@ -14,6 +14,10 @@ inputs:
     description: PR number to review (auto-detected from pull_request events)
     required: false
     default: ""
+  model:
+    description: Claude model to use for the review
+    required: false
+    default: claude-sonnet-5
 
 runs:
   using: composite
@@ -106,6 +110,7 @@ runs:
              - 🟧 **Ship (medium findings to address)** - MEDIUM findings only, no CRITICAL or HIGH.
              - 🚫 **Changes required** - one or more CRITICAL or HIGH findings.
         claude_args: |
+          --model "${{ inputs.model }}"
           --allowedTools "Read,Bash(gh pr view:*),Bash(gh pr comment:*),Bash(git diff:*),Bash(git log:*),Bash(git merge-base:*),Bash(git show:*),Bash(grep:*),Bash(find:*)"
 
     - name: Verify the review was posted

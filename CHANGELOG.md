@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] - 2026-08-14
+
+### Changed
+
+- Added a `model` input, defaulting to `claude-sonnet-5`, passed through to `claude_args` as `--model`. Previously the model was left to whatever `anthropics/claude-code-action` defaulted to, which could resolve to a different (and pricier) model without warning
+
 ## [1.2.0] - 2026-08-13
 
 ### Changed
@@ -19,10 +25,6 @@ All notable changes to this project will be documented in this file. This projec
 - A self-check pass before output: each finding is re-examined with the aim of disproving it, and dropped if it cannot be defended
 - `install-commands.sh` now installs from the local working tree when run from a checkout, reporting the branch and warning about uncommitted changes in `commands/`, so a prompt change can be tested before it is merged. Detection is based on the script's own location rather than the working directory, so `curl | sh` still installs from `main` wherever it is run. `--local` and `--remote` force either source
 - A `fixtures/` set of six known diffs with expected outcomes, and `fixtures/run.sh` to build a throwaway repo for any one of them. Three expect no findings (clean refactor, style-only churn, an unseen API contract) and three expect a specific severity (MEDIUM for a trivial log slip, HIGH for an off-by-one, CRITICAL for a reachable SQL injection), so a rubric change can be checked for both over- and under-reporting
-
-### Notes
-
-- The model remains whatever `anthropics/claude-code-action` defaults to; it is deliberately not pinned
 
 ## [1.1.2] - 2026-08-09
 

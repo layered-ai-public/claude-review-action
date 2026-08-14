@@ -76,6 +76,21 @@ jobs:
 
 That's it. Pull requests will now get a review comment from Claude when opened and on each push.
 
+### Choosing a model
+
+The action defaults to `claude-sonnet-5`. Override it by passing `model` if you want a different tier (e.g. `claude-opus-5` for harder reviews):
+
+```yaml
+jobs:
+  review:
+    uses: layered-ai-public/claude-review-action/.github/workflows/claude-review.yml@main
+    with:
+      pr_number: ${{ inputs.pr_number }}
+      model: claude-opus-5
+    secrets:
+      anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+```
+
 ## Local setup (Claude Code commands)
 
 Run the install script directly:
