@@ -44,7 +44,7 @@ Add `ANTHROPIC_API_KEY` as a repository or organisation secret.
 
 ### 3. Create the caller workflow
 
-Add `.github/workflows/claude_code_review.yml` to your repo:
+Add `.github/workflows/claude_review.yml` to your repo:
 
 ```yaml
 name: Claude Review
