@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.3.1] - 2026-08-24
+
+### Fixed
+
+- Added `Grep`, `Glob` and the read-only shell helpers (`rg`, `ls`, `cat`, `head`, `tail`, `wc`, `git rev-parse`, `git ls-files`) to `--allowedTools`. Recent Claude Code builds reach for the native `Grep`/`Glob` tools rather than `Bash(grep:*)`/`Bash(find:*)`, so a review could burn most of its turns on denied calls - one run recorded 28 permission denials across 26 turns and then ended without posting anything. Nothing here grants a capability the allowlist did not already give through `Bash`
+- Recover the review instead of failing the job when Claude generates it but never posts it. The verification step now reads the review out of the run's execution log and posts it itself, so the "Claude completed the review but no comment was posted" failure no longer needs a manual re-run. It still fails when the execution log is missing or holds no usable final response
+- The comment check is retried once after a short pause before the fallback fires, so API lag behind a successful post cannot cause the same review to be posted twice
+
+### Changed
+
+- Permission denials are now printed as a workflow warning listing each denied tool and command, counted and sorted. The review step's own output is sanitised, so `permission_denials_count` was previously the only signal and it named nothing - making an allowlist gap invisible without re-running with `show_full_output`
+- The review prompt now states that posting is a required final action, that only `gh pr comment --body` is permitted (writing the review to a file or piping it in gets denied), and that the final response must be the review markdown so it can be recovered and posted if the command did not land
+
 ## [1.3.0] - 2026-08-14
 
 ### Changed
