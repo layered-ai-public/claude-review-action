@@ -54,6 +54,8 @@ Before writing the review, re-examine each finding and try to disprove it:
 - Read the actual code around it. Does the problem survive contact with what is really there?
 - Is the trigger reachable through normal use of this code, or did you have to invent an unusual configuration?
 - Would a competent engineer reading this diff call it a real problem, or a matter of taste?
+- Verify every `path:line` you are about to cite against the file on disk. Line numbers must come from reading the file itself, never from a diff hunk header, a hunk offset, or memory of where the code "should" be. A citation past the end of the file makes the whole review look like it ran against a different revision.
+- If you cannot confirm the line, cite the file path alone and name the symbol (method, constant, class) instead. A path plus a symbol name is always better than an invented line number.
 
 If you cannot defend a finding after that, drop it. Prefer dropping a doubtful finding over reporting it with a caveat.
 
