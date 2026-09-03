@@ -55,8 +55,13 @@ runs:
           - You may open files and search the codebase to understand context and verify assumptions about changed lines. Always read files from the local checkout, never via `gh` commands that fetch remote content.
           - Do not explore unrelated parts of the repository.
 
+          This run is non-interactive:
+          - There is no human watching and nothing you ask for can be approved. A question in your final response is posted to the pull request verbatim, in place of the review.
+          - If a command is denied, do not retry it in a different shape and do not ask for approval. Note what you could not do and carry on with what the allowlist gives you - the checkout is complete and local git is enough to review from.
+          - Whatever else happens, your final response must still be the complete review, ending with the Verdict section.
+
           Rules:
-          - Do NOT write or modify any files in the repository.
+          - Do NOT write or modify any files in the repository. The single exception is `${{ runner.temp }}/claude-review.md`, which is outside the repository and is where you put the review before posting it.
           - Only review the changed lines and their immediate visible context in the diff.
           - You may (and should) read other files and search the codebase to verify assumptions - e.g. to check whether a method exists, trace a call path, or confirm a constant's value. Do not guess when you can look.
           - Do not comment on unchanged code unless a change in the diff breaks it.
@@ -88,12 +93,17 @@ runs:
           - Read the actual code around it. Does the problem survive contact with what is really there?
           - Is the trigger reachable through normal use of this code, or did you have to invent an unusual configuration?
           - Would a competent engineer reading this diff call it a real problem, or a matter of taste?
+          - Verify every `path:line` you are about to cite against the file in the local checkout. Line numbers must come from reading the file itself (e.g. `wc -l` for its length, then `sed -n` or Read around the line), never from a diff hunk header, a hunk offset, or memory of where the code "should" be. A citation past the end of the file is the clearest sign a review is wrong about the code, and it makes the whole review look like it ran against a different revision.
+          - If you cannot confirm the line, cite the file path alone and name the symbol (method, constant, class) instead. A path plus a symbol name is always better than an invented line number.
 
           If you cannot defend a finding after that, drop it. Prefer dropping a doubtful finding over reporting it with a caveat.
 
           Output:
-          - Posting the review is the last thing you do, and it is required. Run `gh pr comment ${{ github.event.pull_request.number || inputs.pr_number }} --body "..."` with the whole review as a single quoted `--body` argument. Do not write the review to a file first and do not pipe it in - only `gh pr comment` with `--body` is permitted, and any other shape will be denied.
-          - If the command is denied or fails, do not give up silently: say so in your final response and still end that response with the complete review.
+          - Posting the review is the last thing you do, and it is required. Do it in two steps:
+            1. Write the complete review markdown to `${{ runner.temp }}/claude-review.md` using the `Write` tool. This path is outside the repository and is the one file you are permitted to create.
+            2. Run `gh pr comment ${{ github.event.pull_request.number || inputs.pr_number }} --body-file ${{ runner.temp }}/claude-review.md`.
+          - Do NOT pass the review as an inline `--body "..."` argument. The shell performs command substitution inside double quotes, so every backtick-quoted path, symbol, and code span in the review is executed as a command and replaced with its empty output - the posted comment loses exactly the file and symbol names that make it readable. `--body-file` is the only permitted shape; an inline `--body` will be denied.
+          - If either step is denied or fails, do not give up silently: say so in your final response and still end that response with the complete review.
           - Your final response must be ONLY the markdown review (no preamble, no code fences), so that it can be posted for you if the command did not land.
 
           - If no issues are found, keep the response concise and do not add filler commentary.
@@ -115,7 +125,7 @@ runs:
              - 🚫 **Changes required** - one or more CRITICAL or HIGH findings.
         claude_args: |
           --model "${{ inputs.model }}"
-          --allowedTools "Read,Grep,Glob,Bash(gh pr view:*),Bash(gh pr comment:*),Bash(git diff:*),Bash(git log:*),Bash(git merge-base:*),Bash(git show:*),Bash(git rev-parse:*),Bash(git ls-files:*),Bash(grep:*),Bash(rg:*),Bash(find:*),Bash(ls:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(wc:*)"
+          --allowedTools "Read,Grep,Glob,Write,Bash(gh pr view:*),Bash(gh pr comment:*),Bash(git diff:*),Bash(git fetch:*),Bash(git log:*),Bash(git merge-base:*),Bash(git show:*),Bash(git rev-parse:*),Bash(git ls-files:*),Bash(grep:*),Bash(rg:*),Bash(find:*),Bash(ls:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(wc:*)"
 
     - name: Verify the review was posted
       if: always() && steps.review.outcome != 'skipped'
@@ -152,31 +162,59 @@ runs:
             "${RESULT}" | sort | uniq -c | sort -rn
         fi
 
-        count_bot_comments() {
+        bot_comments() {
           gh api \
             "repos/${REPO}/issues/${PR_NUMBER}/comments?since=${SINCE}&per_page=100" \
-            --jq '[.[] | select(.user.type == "Bot")] | length'
+            --jq '[.[] | select(.user.type == "Bot")]'
         }
 
         # Two passes: the comments API can lag behind a successful post, and
         # double-posting a review is worse than waiting a few seconds for it.
         for attempt in 1 2; do
-          posted=$(count_bot_comments)
+          comments=$(bot_comments)
+          posted=$(printf '%s' "${comments}" | jq 'length')
           if [ "${posted}" -gt 0 ]; then
             echo "Review posted: ${posted} bot comment(s) on PR #${PR_NUMBER} since ${SINCE}."
+            # An empty `` code span means the review went through an inline
+            # --body "...": the shell ran each backtick span as a command and
+            # substituted its empty output, stripping the file and symbol names.
+            blanks=$(printf '%s' "${comments}" \
+              | jq -r 'last.body // ""' \
+              | grep -cE '(^|[^`])``([^`]|$)' || true)
+            if [ "${blanks:-0}" -gt 0 ]; then
+              echo "::warning::The posted review contains ${blanks} empty code span(s) - it was probably posted with an inline \`--body \"...\"\` instead of --body-file, so backtick-quoted paths and symbols were eaten by shell command substitution."
+            fi
             exit 0
           fi
           if [ "${attempt}" -eq 1 ]; then sleep 5; fi
         done
 
-        echo "No comment landed on PR #${PR_NUMBER}; recovering the review from the execution log."
-        jq -r '.result // empty' "${RESULT}" > "${BODY}"
+        # The review file Claude was told to write is the faithful copy; the
+        # execution log's final response is the fallback when it never got there.
+        REVIEW_FILE="${RUNNER_TEMP}/claude-review.md"
+        if [ -s "${REVIEW_FILE}" ]; then
+          echo "No comment landed on PR #${PR_NUMBER}; recovering the review from ${REVIEW_FILE}."
+          cp "${REVIEW_FILE}" "${BODY}"
+        else
+          echo "No comment landed on PR #${PR_NUMBER}; recovering the review from the execution log."
+          jq -r '.result // empty' "${RESULT}" > "${BODY}"
+        fi
 
         if [ "$(wc -c < "${BODY}")" -lt 40 ]; then
           echo "::error::Claude completed the review but no comment was posted to PR #${PR_NUMBER}, and its final response was empty or too short to post."
           exit 1
         fi
 
+        # Post a recovered body only if it is actually a review. When Claude
+        # ends its turn asking for approval of a denied command, the fallback
+        # would otherwise put that question on the PR in place of the review.
+        # Every review shape ends in a Verdict section; a question never does.
+        if ! grep -qiE '(^|[^[:alnum:]])verdict' "${BODY}"; then
+          echo "::error::Claude completed the review step but no comment was posted to PR #${PR_NUMBER}, and its final response is not a review - it has no Verdict section, so it was not posted. The response follows."
+          cat "${BODY}"
+          exit 1
+        fi
+
         gh pr comment "${PR_NUMBER}" --repo "${REPO}" --body-file "${BODY}"
         rm -f "${BODY}" "${RESULT}"
-        echo "::warning::Claude did not post the review itself; it was recovered from the execution log and posted by the verification step."
+        echo "::warning::Claude did not post the review itself; it was recovered and posted by the verification step."

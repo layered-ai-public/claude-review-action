@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.3.2] - 2026-08-31
+
+### Fixed
+
+- The review is now written to `$RUNNER_TEMP/claude-review.md` and posted with `gh pr comment --body-file`, instead of being passed inline as `--body "..."`. The shell performs command substitution inside double quotes, so every backtick-quoted path, symbol and code span in the review was executed as a command and replaced with its empty output - reviews posted with blank file references and sentences like "guards with , which only sees public methods". `Write` is allowlisted for that one path, and an inline `--body` is now explicitly forbidden in the prompt. 1.3.1 made this worse by ruling out files and pipes as the only permitted shape
+- The self-check pass now requires every `path:line` citation to be verified against the file in the local checkout, and forbids deriving line numbers from diff hunk headers, hunk offsets or recollection. Reviews were citing lines past the end of the file - a 46-line file credited with findings at 388 and 455 - which reads as a review of a stale revision even when the finding itself is correct. Where the line cannot be confirmed, the reviewer now cites the path and names the symbol rather than guessing a number
+- The recovery path prefers `$RUNNER_TEMP/claude-review.md` over the execution log's final response, so a review that was written but not posted is recovered verbatim
+- Added `Bash(git fetch:*)` to `--allowedTools`. A review spent all four of its denied calls retrying `git fetch origin main` in different shapes, never produced a review, and ended its turn asking for approval - which the recovery path then posted to the pull request in place of the review. The fetch is read-only and the checkout is already full-depth, so this grants nothing the allowlist did not already imply
+- The prompt now states that the run is non-interactive: a denied command must not be retried in another shape or escalated into a question, because there is nobody to approve it and the question lands on the pull request verbatim. The final response must still end with the complete review
+- The recovery path posts a recovered body only when it contains a Verdict section. A final response that is a question rather than a review now fails the job with the text in the log instead of being commented onto the pull request - the previous 40-byte floor passed anything longer than a sentence
+
+### Added
+
+- The verification step warns when a successfully posted review contains empty code spans, which is the signature of the inline `--body` mangling above. Fenced code blocks do not trip it
+
 ## [1.3.1] - 2026-08-24
 
 ### Fixed
