@@ -57,6 +57,9 @@ runs:
 
           This run is non-interactive:
           - There is no human watching and nothing you ask for can be approved. A question in your final response is posted to the pull request verbatim, in place of the review.
+          - You are the only agent on this review. There is nobody to delegate to and nothing waiting to collect work you hand off - do the review yourself, in this turn.
+          - Never end a turn describing work in progress. A response that says you have started something, or that you will report back once it finishes, ends the run with no review posted.
+          - Commands are matched by prefix, so a command that combines things is refused whole even when its first word is allowed: no pipes, no redirects, no `&&`, no `for` loops, no `$(...)`. Run one simple command at a time and read its output - `git diff <base>...HEAD -- app/models/` is allowed, the same command with `> /tmp/diff.txt` on the end is not.
           - If a command is denied, do not retry it in a different shape and do not ask for approval. Note what you could not do and carry on with what the allowlist gives you - the checkout is complete and local git is enough to review from.
           - Whatever else happens, your final response must still be the complete review, ending with the Verdict section.
 
@@ -126,6 +129,7 @@ runs:
         claude_args: |
           --model "${{ inputs.model }}"
           --allowedTools "Read,Grep,Glob,Write,Bash(gh pr view:*),Bash(gh pr comment:*),Bash(git diff:*),Bash(git fetch:*),Bash(git log:*),Bash(git merge-base:*),Bash(git show:*),Bash(git rev-parse:*),Bash(git ls-files:*),Bash(grep:*),Bash(rg:*),Bash(find:*),Bash(ls:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(wc:*)"
+          --disallowedTools "Task"
 
     - name: Verify the review was posted
       if: always() && steps.review.outcome != 'skipped'
