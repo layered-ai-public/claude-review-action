@@ -10,7 +10,7 @@ Pragmatic AI-powered code review with Claude. Reviews pull request diffs for bug
 ## What's included
 
 - **GitHub Action** - drop-in CI review for any repo, one workflow file and one secret
-- **Claude Code commands** - review locally in Claude Code before you push to GitHub, with a fix mode that automatically resolves issues (or quits after 3 cycles)
+- **Claude Code commands** - review locally in Claude Code before you push to GitHub, with a fix mode that automatically resolves issues (or quits after 3 cycles), reviewing with Sonnet and fixing with Opus
 - **Prompt override** - customise the review prompt for any repo using `.github/claude-review-action/prompt.md`
 - **Cost effective** - uses the Anthropic API directly to keep token costs low
 
@@ -111,15 +111,17 @@ Or copy manually:
 
 ```sh
 mkdir -p ~/.claude/commands
-cp commands/code-review.md ~/.claude/commands/code-review.md
-cp commands/code-review-and-fix.md ~/.claude/commands/code-review-and-fix.md
+cp commands/claude-review.md ~/.claude/commands/claude-review.md
+cp commands/claude-review-and-fix.md ~/.claude/commands/claude-review-and-fix.md
 ```
 
 Then in any project use the Claude Code slash commands:
 
-- `/code-review` - review the current branch (read-only)
-- `/code-review-and-fix` - review and automatically fix issues, repeating until clean or 3 cycles
-- `/code-review main` or `/code-review-and-fix develop` - review against a specific base
+- `/claude-review` - review the current branch (read-only)
+- `/claude-review-and-fix` - review and automatically fix issues, repeating until clean or 3 cycles
+- `/claude-review main` or `/claude-review-and-fix develop` - review against a specific base
+
+`/claude-review-and-fix` does not carry its own copy of the review prompt - it runs `/claude-review` and fixes what that reports, so both files must be installed and any prompt change only has to be made in one place. Each review pass is delegated to a Sonnet subagent while the fixes are applied by Opus, so the code is reviewed by a different model from the one that changes it.
 
 By default the commands auto-detect `main` or `master` as the base branch. Pass a specific base when that default is wrong - for example when reviewing against a `develop` branch, a release branch, or another feature branch in a stacked PR workflow.
 
