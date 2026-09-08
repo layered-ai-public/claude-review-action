@@ -48,14 +48,14 @@ esac
 # A checkout of THIS project, not just any directory with a commands/ folder.
 is_local_checkout() {
   [ -n "$SCRIPT_DIR" ] || return 1
-  [ -f "$SCRIPT_DIR/$COMMANDS_PATH/code-review.md" ] || return 1
+  [ -f "$SCRIPT_DIR/$COMMANDS_PATH/claude-review.md" ] || return 1
   [ -f "$SCRIPT_DIR/action.yml" ] || return 1
   grep -q '^name: Claude Review Action' "$SCRIPT_DIR/action.yml" || return 1
 }
 
 if [ "$MODE" = local ] && ! is_local_checkout; then
   echo "error: --local given but this is not a claude-review-action checkout" >&2
-  echo "       (expected $COMMANDS_PATH/code-review.md and action.yml next to this script)" >&2
+  echo "       (expected $COMMANDS_PATH/claude-review.md and action.yml next to this script)" >&2
   exit 1
 fi
 
@@ -103,8 +103,8 @@ else
   rm -f "$TREE"
 fi
 
-# Sanity check: code-review.md must be present for a valid install
-if [ ! -f "$SRC/code-review.md" ]; then
+# Sanity check: claude-review.md must be present for a valid install
+if [ ! -f "$SRC/claude-review.md" ]; then
   echo "Error: no command files found to install" >&2
   exit 1
 fi
@@ -116,4 +116,21 @@ for f in "$SRC"/*.md; do
 done
 
 echo "Installed claude-review-action commands to $DEST"
-echo "You can now use the /code-review and /code-review-and-fix commands in Claude Code."
+
+# Remove the pre-rename command files. They were named /code-review and
+# /code-review-and-fix, which collides with the code-review plugin Anthropic
+# ships. Only delete a file we can still recognise as ours - a user who wrote
+# their own /code-review keeps it.
+removed=""
+for old in code-review code-review-and-fix; do
+  f="$DEST/$old.md"
+  [ -f "$f" ] || continue
+  grep -q 'claude-review-action/prompt.md' "$f" 2>/dev/null || continue
+  rm -f "$f"
+  removed="$removed /$old"
+done
+if [ -n "$removed" ]; then
+  echo "Removed superseded$removed (renamed to /claude-review and /claude-review-and-fix)"
+fi
+
+echo "You can now use the /claude-review and /claude-review-and-fix commands in Claude Code."
