@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.3.3] - 2026-09-08
+
+### Fixed
+
+- `Task` is now disallowed for the review run. A reviewer fanned out to six subagents, announced that it would wait for their results, and ended its turn - nothing was waiting for it, no review was compiled, and the job failed after 122 seconds and $1.07 of completed analysis. `--allowedTools` auto-approves; it does not restrict, and `Task` never needs approval, so it was reachable despite never being listed (and never appeared among the denials). Subagents also inherit the same permission rules, so a fan-out multiplies the denied calls and returns summaries the reviewer cannot cite `path:line` from
+- The prompt now states that the reviewer is the only agent on the run, with nobody to delegate to and nothing to collect handed-off work, and that a turn must never end describing work in progress
+- The prompt now explains why a command was denied. The allowlist is prefix-matched, so a command that combines things is refused whole even when its first word is allowed - `git diff <base>...HEAD -- app/models/` is permitted, the same command with `> /tmp/diff.txt` is not. One run recorded 14 denials, all of them pipes, redirects, loops or `bundle exec`, several the same command retried in a different shape. The prompt forbade that retrying without ever saying what the rule was
+
 ## [1.3.2] - 2026-08-31
 
 ### Fixed
