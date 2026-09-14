@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- The Claude Code commands are now `/claude-review` and `/claude-review-and-fix`. `/code-review` collided with the `code-review` plugin Anthropic ships, so typing it offered two commands with the same name and no way to tell which review you were getting. `install-commands.sh` removes the old `code-review.md` and `code-review-and-fix.md` from `~/.claude/commands`, but only when their contents identify them as ours - a hand-written `/code-review` is left in place
+- `/claude-review-and-fix` no longer carries its own copy of the review prompt. It determines the base branch, runs `/claude-review` for each pass, and fixes what that reports - the two commands had drifted into ~85% duplicated text that had to be edited twice for every prompt change. It refers to `claude-review` by name and lets Claude Code resolve it rather than hardcoding an install path, and requires that command to be installed alongside it
+- Each review pass in `/claude-review-and-fix` runs in a subagent on Sonnet while the fixes are applied by Opus, so the code is reviewed by a different model from the one that changes it. Fixes are no longer applied on the strength of an assumption the review could not verify - the fixer verifies it first or leaves the finding alone
+
 ## [1.3.3] - 2026-09-08
 
 ### Fixed
