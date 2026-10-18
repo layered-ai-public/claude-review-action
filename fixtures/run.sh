@@ -66,7 +66,7 @@ Run the review:
 
   cd "$WORK" && claude
 
-then invoke /code-review inside that session.
+then invoke /review-branch inside that session.
 
 Expected result: $SRC/expected.md
 (read it AFTER the review, so the expectation does not prime the reviewer)
