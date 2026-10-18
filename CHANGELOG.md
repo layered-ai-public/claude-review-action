@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- Reviews can run on a Claude subscription. The action and the reusable workflow accept a `claude_code_oauth_token` input, generated with `claude setup-token`, as an alternative to `anthropic_api_key`, which is no longer required. `claude-code-action` already accepted the token; this action just never passed it through. A new first step fails the job with an error naming both inputs when neither is set, which is also what a misnamed or missing secret looks like, since it arrives as an empty string
+
 ## [1.4.0] - 2026-10-18
 
 ### Changed

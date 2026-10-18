@@ -14,7 +14,9 @@ on:
         default: claude-sonnet-5
     secrets:
       anthropic_api_key:
-        required: true
+        required: false
+      claude_code_oauth_token:
+        required: false
 
 concurrency:
   group: claude-review-${{ github.event.pull_request.number || inputs.pr_number }}
@@ -28,5 +30,6 @@ jobs:
         uses: layered-ai-public/claude-review-action@main
         with:
           anthropic_api_key: ${{ secrets.anthropic_api_key }}
+          claude_code_oauth_token: ${{ secrets.claude_code_oauth_token }}
           pr_number: ${{ inputs.pr_number }}
           model: ${{ inputs.model }}
