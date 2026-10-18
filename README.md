@@ -34,15 +34,13 @@ If your repo has a `CLAUDE.md` or `AGENTS.md`, the reviewer will read it for pro
 
 ## CI setup
 
-### 1. Install the Claude GitHub App
-
-Install [Claude for GitHub](https://github.com/apps/claude) on your repository or organisation.
-
-### 2. Add the secret
+### 1. Add the secret
 
 Add `ANTHROPIC_API_KEY` as a repository or organisation secret.
 
-### 3. Create the caller workflow
+The review is posted with the workflow's `GITHUB_TOKEN`, so the Claude GitHub App doesn't need installing.
+
+### 2. Create the caller workflow
 
 Add `.github/workflows/claude_review.yml` to your repo:
 
@@ -62,7 +60,6 @@ permissions:
   contents: read
   pull-requests: write
   issues: read
-  id-token: write
   actions: read
 
 jobs:

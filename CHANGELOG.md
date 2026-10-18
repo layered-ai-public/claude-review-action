@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- The review now acts on GitHub with the workflow's `GITHUB_TOKEN`, so the Claude GitHub App no longer needs installing and callers no longer need to grant `id-token: write`. `claude-code-action` was given no `github_token`, so it exchanged the workflow's OIDC token for a Claude GitHub App token, and the review failed before it started on any repository without the app. Reviews are now posted as `github-actions[bot]` rather than `claude[bot]`. Callers that still grant `id-token: write` keep working, and can drop it
+
 ## [1.3.3] - 2026-09-08
 
 ### Fixed
