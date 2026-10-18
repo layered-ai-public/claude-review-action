@@ -40,6 +40,9 @@ runs:
         GH_TOKEN: ${{ github.token }}
       with:
         anthropic_api_key: ${{ inputs.anthropic_api_key }}
+        # Left empty, the action would fetch a Claude GitHub App token instead,
+        # which needs the app installed and the caller to grant id-token: write.
+        github_token: ${{ github.token }}
         prompt: |
           Role: You are a senior code reviewer.
           Task: Review the pull request #${{ github.event.pull_request.number || inputs.pr_number }}
