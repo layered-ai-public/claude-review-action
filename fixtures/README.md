@@ -15,12 +15,12 @@ actually suffers from.
 
 That builds a throwaway git repo with `base/` committed as `main` and `head/` on a
 branch, so `git diff main...HEAD` inside it is exactly the diff under review. It prints
-the path. `cd` there, start `claude`, and run `/code-review`.
+the path. `cd` there, start `claude`, and run `/review-branch`.
 
 Read `expected.md` **after** the review, not before — in the same session it primes the
 reviewer and the run tells you nothing.
 
-Two things to be careful of. `/code-review` uses your **installed** command from
+Two things to be careful of. `/review-branch` uses your **installed** command from
 `~/.claude/commands/`, not this working tree, so run `./install-commands.sh` from the
 checkout first — it installs the current branch's prompt and tells you which branch that
 was. And to exercise the action rather than the slash command, push the fixture repo to a
@@ -31,7 +31,7 @@ To review a fixture without touching your installed commands at all, pass the pr
 straight to a headless run from inside the fixture repo:
 
 ```bash
-claude -p "$(cat /path/to/claude-review-action/commands/code-review.md)" \
+claude -p "$(cat /path/to/claude-review-action/commands/review-branch.md)" \
   --allowedTools "Read,Grep,Glob,Bash(git diff:*),Bash(git log:*)"
 ```
 

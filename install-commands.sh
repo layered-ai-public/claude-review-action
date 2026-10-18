@@ -48,14 +48,14 @@ esac
 # A checkout of THIS project, not just any directory with a commands/ folder.
 is_local_checkout() {
   [ -n "$SCRIPT_DIR" ] || return 1
-  [ -f "$SCRIPT_DIR/$COMMANDS_PATH/claude-review.md" ] || return 1
+  [ -f "$SCRIPT_DIR/$COMMANDS_PATH/review-branch.md" ] || return 1
   [ -f "$SCRIPT_DIR/action.yml" ] || return 1
   grep -q '^name: Claude Review Action' "$SCRIPT_DIR/action.yml" || return 1
 }
 
 if [ "$MODE" = local ] && ! is_local_checkout; then
   echo "error: --local given but this is not a claude-review-action checkout" >&2
-  echo "       (expected $COMMANDS_PATH/claude-review.md and action.yml next to this script)" >&2
+  echo "       (expected $COMMANDS_PATH/review-branch.md and action.yml next to this script)" >&2
   exit 1
 fi
 
@@ -103,8 +103,8 @@ else
   rm -f "$TREE"
 fi
 
-# Sanity check: claude-review.md must be present for a valid install
-if [ ! -f "$SRC/claude-review.md" ]; then
+# Sanity check: review-branch.md must be present for a valid install
+if [ ! -f "$SRC/review-branch.md" ]; then
   echo "Error: no command files found to install" >&2
   exit 1
 fi
@@ -130,7 +130,7 @@ for old in code-review code-review-and-fix; do
   removed="$removed /$old"
 done
 if [ -n "$removed" ]; then
-  echo "Removed superseded$removed (renamed to /claude-review and /claude-review-and-fix)"
+  echo "Removed superseded$removed (renamed to /review-branch and /review-branch-and-fix)"
 fi
 
-echo "You can now use the /claude-review and /claude-review-and-fix commands in Claude Code."
+echo "You can now use the /review-branch and /review-branch-and-fix commands in Claude Code."

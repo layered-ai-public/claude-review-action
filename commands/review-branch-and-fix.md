@@ -5,7 +5,7 @@ model: opus
 
 Review and fix the current branch against the base branch.
 
-The review itself is defined by the `/claude-review` command - this command does not restate it. Run that review, then fix what it finds.
+The review itself is defined by the `/review-branch` command - this command does not restate it. Run that review, then fix what it finds.
 
 ## Base branch
 
@@ -19,13 +19,13 @@ Each review pass is delegated to a subagent running Sonnet, so the review is don
 
 Use the Agent tool with `subagent_type: "general-purpose"` and `model: "sonnet"`, and this prompt:
 
-> Invoke the `claude-review` command with the Skill tool, passing `<base>` as its argument, and follow its instructions exactly. Do not modify any files. Return the complete review as your final message, in the output format that command specifies, and nothing else. If no `claude-review` command is available to you, say so instead of reviewing from your own judgement.
+> Invoke the `review-branch` command with the Skill tool, passing `<base>` as its argument, and follow its instructions exactly. Do not modify any files. Return the complete review as your final message, in the output format that command specifies, and nothing else. If no `review-branch` command is available to you, say so instead of reviewing from your own judgement.
 
 Substitute the base branch you determined above. Print the review the subagent returns verbatim, labelled with the pass number (e.g. "Review pass 1").
 
-The `claude-review` command is installed alongside this one, so refer to it by name and let Claude Code resolve it - do not hardcode a path to the file. If the subagent reports it cannot find the command, stop and say that `claude-review` needs to be installed; do not fall back to reviewing from memory or from these instructions, which contain no review rules.
+The `review-branch` command is installed alongside this one, so refer to it by name and let Claude Code resolve it - do not hardcode a path to the file. If the subagent reports it cannot find the command, stop and say that `review-branch` needs to be installed; do not fall back to reviewing from memory or from these instructions, which contain no review rules.
 
-If the Agent tool is unavailable, invoke `claude-review` yourself in this session for each pass and note that it ran on this session's model rather than Sonnet.
+If the Agent tool is unavailable, invoke `review-branch` yourself in this session for each pass and note that it ran on this session's model rather than Sonnet.
 
 ## Fix cycle
 

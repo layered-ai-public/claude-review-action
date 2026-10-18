@@ -108,17 +108,17 @@ Or copy manually:
 
 ```sh
 mkdir -p ~/.claude/commands
-cp commands/claude-review.md ~/.claude/commands/claude-review.md
-cp commands/claude-review-and-fix.md ~/.claude/commands/claude-review-and-fix.md
+cp commands/review-branch.md ~/.claude/commands/review-branch.md
+cp commands/review-branch-and-fix.md ~/.claude/commands/review-branch-and-fix.md
 ```
 
 Then in any project use the Claude Code slash commands:
 
-- `/claude-review` - review the current branch (read-only)
-- `/claude-review-and-fix` - review and automatically fix issues, repeating until clean or 3 cycles
-- `/claude-review main` or `/claude-review-and-fix develop` - review against a specific base
+- `/review-branch` - review the current branch (read-only)
+- `/review-branch-and-fix` - review and automatically fix issues, repeating until clean or 3 cycles
+- `/review-branch main` or `/review-branch-and-fix develop` - review against a specific base
 
-`/claude-review-and-fix` does not carry its own copy of the review prompt - it runs `/claude-review` and fixes what that reports, so both files must be installed and any prompt change only has to be made in one place. Each review pass is delegated to a Sonnet subagent while the fixes are applied by Opus, so the code is reviewed by a different model from the one that changes it.
+`/review-branch-and-fix` does not carry its own copy of the review prompt - it runs `/review-branch` and fixes what that reports, so both files must be installed and any prompt change only has to be made in one place. Each review pass is delegated to a Sonnet subagent while the fixes are applied by Opus, so the code is reviewed by a different model from the one that changes it.
 
 By default the commands auto-detect `main` or `master` as the base branch. Pass a specific base when that default is wrong - for example when reviewing against a `develop` branch, a release branch, or another feature branch in a stacked PR workflow.
 
