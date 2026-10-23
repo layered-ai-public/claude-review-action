@@ -36,7 +36,7 @@ If your repo has a `CLAUDE.md` or `AGENTS.md`, the reviewer will read it for pro
 
 ### 1. Add the secret
 
-Add `ANTHROPIC_API_KEY` as a repository or organisation secret.
+Add `ANTHROPIC_API_KEY` as a repository or organisation secret. To bill reviews to a Claude subscription instead, see [Using a Claude subscription](#using-a-claude-subscription).
 
 The review is posted with the workflow's `GITHUB_TOKEN`, so the Claude GitHub App doesn't need installing.
 
@@ -87,6 +87,31 @@ jobs:
     secrets:
       anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
 ```
+
+### Using a Claude subscription
+
+Reviews can run on a Claude Pro or Max subscription rather than API credits. Generate a token locally:
+
+```sh
+claude setup-token
+```
+
+Add the token it prints as a `CLAUDE_CODE_OAUTH_TOKEN` secret, and pass it in place of the API key:
+
+```yaml
+    secrets:
+      claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+```
+
+The token is long-lived - roughly a year - so you set it once and replace it when it expires. It also stops working if you revoke it or the subscription lapses; either way the review step fails with an authentication error, and running `claude setup-token` again and updating the secret fixes it.
+
+Before choosing this over an API key:
+
+- **Reviews share your usage limits.** Every review counts against the same 5-hour and weekly limits as your own Claude Code sessions. On a busy repo, reviews can use up the allowance you were going to work with, and once it's spent reviews fail until it resets.
+- **It's one person's subscription.** Every PR in the repo is reviewed on the account that generated the token. That suits a repo you maintain yourself; for a team repo, an API key or a Team or Enterprise plan is the better fit.
+- **Pass one credential, not both.** If both secrets are set, which one `claude-code-action` uses is up to it, so you can't be sure which account is being billed.
+
+Pull requests from forks don't receive repository secrets, so they aren't reviewed with either credential.
 
 ## Local setup (Claude Code commands)
 

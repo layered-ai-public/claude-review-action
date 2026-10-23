@@ -8,8 +8,13 @@ branding:
 
 inputs:
   anthropic_api_key:
-    description: Anthropic API key for Claude
-    required: true
+    description: Anthropic API key for Claude. Set this or claude_code_oauth_token
+    required: false
+    default: ""
+  claude_code_oauth_token:
+    description: Claude Code OAuth token from `claude setup-token`, to run reviews on a Claude subscription. Set this or anthropic_api_key
+    required: false
+    default: ""
   pr_number:
     description: PR number to review (auto-detected from pull_request events)
     required: false
@@ -22,6 +27,19 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Check credentials
+      shell: bash
+      env:
+        HAS_API_KEY: ${{ inputs.anthropic_api_key != '' }}
+        HAS_OAUTH_TOKEN: ${{ inputs.claude_code_oauth_token != '' }}
+      run: |
+        # Fail before checkout rather than inside claude-code-action, whose
+        # error doesn't name the inputs this action exposes.
+        if [ "${HAS_API_KEY}" != "true" ] && [ "${HAS_OAUTH_TOKEN}" != "true" ]; then
+          echo "::error::No credentials were passed. Set anthropic_api_key or claude_code_oauth_token - if you passed a secret, check it exists under that name, as a missing secret arrives as an empty string."
+          exit 1
+        fi
+
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
@@ -40,6 +58,7 @@ runs:
         GH_TOKEN: ${{ github.token }}
       with:
         anthropic_api_key: ${{ inputs.anthropic_api_key }}
+        claude_code_oauth_token: ${{ inputs.claude_code_oauth_token }}
         # Left empty, the action would fetch a Claude GitHub App token instead,
         # which needs the app installed and the caller to grant id-token: write.
         github_token: ${{ github.token }}
